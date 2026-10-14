@@ -1,0 +1,53 @@
+<meta charset="utf-8">
+<style>
+  html,body{margin:0;width:854px;height:480px;overflow:hidden;background:#0d0d0d}
+  .paper{position:absolute;inset:0;background:#e5dfcd;transform:rotate(.6deg) scale(1.02)}
+  .noise{position:absolute;inset:0;opacity:.5;mix-blend-mode:multiply;
+    background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="165" height="165"><filter id="n"><feTurbulence baseFrequency="0.93" numOctaves="2"/><feColorMatrix values="0 0 0 0 0.34 0 0 0 0 0.32 0 0 0 0 0.28 0 0 0 0.37 0"/></filter><rect width="165" height="165" filter="url(%23n)"/></svg>')}
+  .inner{position:absolute;inset:24px 96px;color:#15120d;text-align:center}
+  .soc{font-family:'Courier New',monospace;font-size:19px;letter-spacing:3px;font-weight:bold}
+  h1{font-family:Georgia,serif;font-size:62px;margin:6px 0 0;line-height:1;font-weight:normal}
+  h1 b{border-bottom:4px solid #8a1f1f}
+  .map{margin:10px auto 0;width:430px;border:2px solid #15120d;font-family:'Courier New',monospace;
+    font-size:16px;padding:5px 0;line-height:1.12}
+  .map pre{margin:0}
+  .body{font-family:Georgia,serif;font-size:18px;line-height:1.35;margin:8px 0 0}
+  .body i{font-size:18px}
+  .meet{position:absolute;bottom:10px;left:96px;right:96px;text-align:center;
+    font-family:'Courier New',monospace;font-size:15px;font-weight:bold;letter-spacing:1px}
+  /* frame-safe zone: Rust picture frames show a ~4:3 center crop (~107px off each side) */
+  .safe{position:absolute;left:0;top:0;width:854px;height:480px;transform:scale(.72);transform-origin:50% 50%}
+  /* dirt pass: brown multiply cast + vignette + stains so prints sit next to Rust's own papers */
+  .dirt{position:absolute;left:0;top:0;width:854px;height:480px;pointer-events:none;mix-blend-mode:multiply;
+    background:
+      radial-gradient(120% 95% at 50% 45%, rgba(58,45,26,0) 48%, rgba(58,45,26,.55) 100%),
+      radial-gradient(230px 170px at 14% 92%, rgba(88,66,36,.34), transparent 70%),
+      radial-gradient(270px 190px at 86% 10%, rgba(88,66,36,.30), transparent 70%),
+      radial-gradient(170px 130px at 72% 84%, rgba(104,80,42,.26), transparent 70%),
+      radial-gradient(210px 150px at 30% 10%, rgba(76,58,32,.22), transparent 70%),
+      radial-gradient(90px 60px at 44% 32%, rgba(90,70,40,.18), transparent 70%),
+      linear-gradient(rgba(122,96,56,.42), rgba(122,96,56,.42))}
+</style>
+<div class="paper"></div>
+<div class="noise"></div>
+<div class="safe">
+<div class="inner">
+  <div class="soc">THE FLAT MAP SOCIETY · CHAPTER 1 OF 1</div>
+  <h1>We walked to the edge.<br><b>There is an edge.</b></h1>
+  <div class="map"><pre>+---------------------------+
+|  ~ ~ ~ ~ THE SEA ~ ~ ~ ~  |
+|  ~ .-''-._.-''-. ~ ~ ~ ~  |
+|  ~ | THE ISLAND | ~ ~ ~   |
+|  ~ '-.__.--.__.-' ~ ~ ~   |
+|  ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  |
++---------------------------+
+ ^ WALL. INVISIBLE. WE TOUCHED IT.</pre></div>
+  <div class="body">
+    They tell you the world is round. Explain the swimmer who
+    <b>stopped moving forward.</b>
+    <i>Round worlds don't have corners. Ours has four.</i>
+  </div>
+  <div class="meet">MEETINGS TUESDAYS AT THE LIGHTHOUSE · BRING PROOF · NO GLOBEHEADS</div>
+</div>
+</div>
+<div class="dirt"></div>

@@ -1,0 +1,12 @@
+scratch/
+*.tmp
+
+# Local Claude Code session state — dense with local hostnames/paths, never ship
+.claude/
+
+# Local working files dropped in the repo root (screenshots, flyers) — not source
+/*.pdf
+!/FakeFriends-Flyer.pdf
+/*.png
+
+releases/

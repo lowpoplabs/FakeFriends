@@ -1,0 +1,57 @@
+<meta charset="utf-8">
+<style>
+  html,body{margin:0;width:854px;height:480px;overflow:hidden;background:#0d0d0d}
+  .paper{position:absolute;inset:0;background:#e4decb;
+    background-image:radial-gradient(circle 90px at 8% 92%, rgba(101,67,33,.3), transparent 70%);
+    transform:rotate(-.9deg) scale(1.03)}
+  .noise{position:absolute;inset:0;opacity:.5;mix-blend-mode:multiply;
+    background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="170" height="170"><filter id="n"><feTurbulence baseFrequency="0.9" numOctaves="2"/><feColorMatrix values="0 0 0 0 0.34 0 0 0 0 0.32 0 0 0 0 0.27 0 0 0 0.4 0"/></filter><rect width="170" height="170" filter="url(%23n)"/></svg>')}
+  .inner{position:absolute;inset:20px 96px;color:#16130e}
+  h1{font-family:'Comic Sans MS',cursive;font-size:44px;margin:0;line-height:1.05;transform:rotate(-1deg);width:640px}
+  h1 b{color:#8a1f1f}
+  .chart{margin-top:10px;display:flex;align-items:flex-end;gap:5px;height:88px;
+    border-left:2px solid #16130e;border-bottom:2px solid #16130e;padding:0 6px;width:528px}
+  .bar{flex:1;background:#3a352b}
+  .bar.hot{background:#8a1f1f}
+  .xlab{font-family:'Courier New',monospace;font-size:16px;width:540px;display:flex;justify-content:space-between;margin-top:3px}
+  .body{font-family:'Courier New',monospace;font-size:20px;line-height:1.4;margin-top:10px;width:600px}
+  .body b{background:#16130e;color:#e4decb;padding:0 3px}
+  .margin-note{margin-top:10px;width:620px;font-family:'Comic Sans MS',cursive;
+    font-size:21px;color:#8a1f1f;transform:rotate(-1.5deg);line-height:1.3}
+  /* frame-safe zone: Rust picture frames show a ~4:3 center crop (~107px off each side) */
+  .safe{position:absolute;left:0;top:0;width:854px;height:480px;transform:scale(.72);transform-origin:50% 50%}
+  /* dirt pass: brown multiply cast + vignette + stains so prints sit next to Rust's own papers */
+  .dirt{position:absolute;left:0;top:0;width:854px;height:480px;pointer-events:none;mix-blend-mode:multiply;
+    background:
+      radial-gradient(120% 95% at 50% 45%, rgba(58,45,26,0) 48%, rgba(58,45,26,.55) 100%),
+      radial-gradient(230px 170px at 14% 86%, rgba(88,66,36,.34), transparent 70%),
+      radial-gradient(270px 190px at 86% 12%, rgba(88,66,36,.30), transparent 70%),
+      radial-gradient(170px 130px at 70% 88%, rgba(104,80,42,.26), transparent 70%),
+      radial-gradient(210px 150px at 34% 10%, rgba(76,58,32,.22), transparent 70%),
+      radial-gradient(90px 60px at 62% 38%, rgba(90,70,40,.18), transparent 70%),
+      linear-gradient(rgba(122,96,56,.42), rgba(122,96,56,.42))}
+  .tape{position:absolute;width:110px;height:26px;background:rgba(180,170,140,.55);top:-8px;left:340px;transform:rotate(-3deg)}
+</style>
+<div class="paper"></div>
+<div class="noise"></div>
+<div class="tape"></div>
+<div class="safe">
+<div class="inner">
+  <h1>THE RECYCLERS ALL HUM IN UNISON AT <b>3 A.M.</b></h1>
+  <div class="chart">
+    <div class="bar" style="height:18%"></div><div class="bar" style="height:14%"></div>
+    <div class="bar" style="height:20%"></div><div class="bar" style="height:12%"></div>
+    <div class="bar" style="height:16%"></div><div class="bar hot" style="height:96%"></div>
+    <div class="bar" style="height:15%"></div><div class="bar" style="height:13%"></div>
+    <div class="bar" style="height:19%"></div><div class="bar" style="height:11%"></div>
+  </div>
+  <div class="xlab"><span>10pm</span><span>11pm</span><span>12am</span><span>1am</span><span>2am</span><span style="color:#8a1f1f;font-weight:bold">3am</span><span>4am</span><span>5am</span><span>6am</span><span>7am</span></div>
+  <div class="body">
+    Hum recorded at outpost, mining outpost, and the gas station — <b>the same 50Hz</b>,
+    <b>the same second</b>, every night. Machines do not need to synchronize.
+    Unless they are <b>counting something down</b>.
+  </div>
+  <div class="margin-note">i slowed the tape down. there are WORDS in it. do not put your ear against the recycler</div>
+</div>
+</div>
+<div class="dirt"></div>

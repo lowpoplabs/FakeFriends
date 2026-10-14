@@ -1,0 +1,56 @@
+<meta charset="utf-8">
+<style>
+  html,body{margin:0;width:854px;height:480px;overflow:hidden;background:#0d0d0d}
+  .paper{position:absolute;inset:0;background:#dcd8cc;
+    background-image:repeating-linear-gradient(0deg, transparent 0 4px, rgba(0,0,0,.02) 4px 5px);
+    transform:rotate(-.3deg) scale(1.02)}
+  .noise{position:absolute;inset:0;opacity:.45;mix-blend-mode:multiply;
+    background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="n"><feTurbulence baseFrequency="0.9" numOctaves="2"/><feColorMatrix values="0 0 0 0 0.32 0 0 0 0 0.31 0 0 0 0 0.29 0 0 0 0.36 0"/></filter><rect width="180" height="180" filter="url(%23n)"/></svg>')}
+  .inner{position:absolute;inset:22px 96px;color:#14130f;font-family:'Courier New',monospace}
+  .memo{border:2px solid #14130f;padding:10px 16px}
+  .memo .h{display:flex;justify-content:space-between;font-size:19px;border-bottom:1px solid #14130f;padding-bottom:5px;font-weight:bold}
+  .memo .subj{font-size:22px;font-weight:bold;margin-top:6px}
+  .redact{background:#14130f;color:#14130f;padding:0 2px}
+  h1{font-family:'Arial Black',Impact,sans-serif;font-size:64px;margin:12px 0 0;line-height:1;text-transform:uppercase;text-align:center}
+  h1 b{color:#1f3a8a}
+  .body{font-size:18px;line-height:1.4;margin-top:10px;width:470px}
+  .body b{background:#14120e;color:#dcd8cc;padding:0 4px}
+  .cctv{position:absolute;right:96px;top:265px;width:170px;font-size:16px;transform:rotate(2deg);text-align:center;color:#2a2822}
+  .cctv pre{margin:0;line-height:1.1}
+  .foot{position:absolute;bottom:13px;left:96px;right:96px;text-align:center;font-size:15px;font-weight:bold;letter-spacing:0}
+  /* frame-safe zone: Rust picture frames show a ~4:3 center crop (~107px off each side) */
+  .safe{position:absolute;left:0;top:0;width:854px;height:480px;transform:scale(.72);transform-origin:50% 50%}
+  /* dirt pass: brown multiply cast + vignette + stains so prints sit next to Rust's own papers */
+  .dirt{position:absolute;left:0;top:0;width:854px;height:480px;pointer-events:none;mix-blend-mode:multiply;
+    background:
+      radial-gradient(120% 95% at 50% 45%, rgba(58,45,26,0) 48%, rgba(58,45,26,.55) 100%),
+      radial-gradient(230px 170px at 10% 94%, rgba(88,66,36,.34), transparent 70%),
+      radial-gradient(270px 190px at 90% 4%, rgba(88,66,36,.30), transparent 70%),
+      radial-gradient(170px 130px at 82% 88%, rgba(104,80,42,.26), transparent 70%),
+      radial-gradient(210px 150px at 22% 8%, rgba(76,58,32,.22), transparent 70%),
+      radial-gradient(90px 60px at 60% 34%, rgba(90,70,40,.18), transparent 70%),
+      linear-gradient(rgba(122,96,56,.42), rgba(122,96,56,.42))}
+</style>
+<div class="paper"></div>
+<div class="noise"></div>
+<div class="safe">
+<div class="inner">
+  <div class="memo">
+    <div class="h"><span>COBALT INDUSTRIES — INTERNAL</span><span>DO NOT CIRCULATE</span></div>
+    <div class="subj">RE: SITE <span class="redact">████</span> DECOMMISSION — STATUS: <span class="redact">██ ███████</span></div>
+  </div>
+  <h1>Cobalt never <b>left.</b></h1>
+  <div class="body">
+    Their name is on the crates, the elevators, the keycards in your pocket
+    <b>right now</b>. Somebody pays the power bill at every monument.
+    The cameras at outpost still record. Recording <b>to where?</b>
+  </div>
+  <div class="cctv"><pre> ___
+/###\==[]
+\___/  |
+  \\   |
+ [CCTV-07]</pre>still blinking.<br>still uploading.</div>
+</div>
+<div class="foot">TRY YOUR DOOR CODE BACKWARDS. IF IT STILL OPENS, THEY ALREADY KNOW IT.</div>
+</div>
+<div class="dirt"></div>

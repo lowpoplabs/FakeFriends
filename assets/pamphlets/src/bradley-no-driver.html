@@ -1,0 +1,53 @@
+<meta charset="utf-8">
+<style>
+  html,body{margin:0;width:854px;height:480px;overflow:hidden;background:#0d0d0d}
+  .paper{position:absolute;inset:0;background:#dfd9c6;
+    background-image:radial-gradient(ellipse 400px 240px at 70% 20%, rgba(80,60,30,.12), transparent);
+    transform:rotate(.7deg) scale(1.02)}
+  .noise{position:absolute;inset:0;opacity:.5;mix-blend-mode:multiply;
+    background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="190" height="190"><filter id="n"><feTurbulence baseFrequency="0.88" numOctaves="2"/><feColorMatrix values="0 0 0 0 0.36 0 0 0 0 0.34 0 0 0 0 0.3 0 0 0 0.36 0"/></filter><rect width="190" height="190" filter="url(%23n)"/></svg>')}
+  .inner{position:absolute;inset:22px 96px;color:#14120f}
+  .top{font-family:'Courier New',monospace;font-size:20px;letter-spacing:3px;text-align:center}
+  h1{font-family:'Arial Black',Impact,sans-serif;font-size:62px;margin:4px 0 0;text-align:center;
+    line-height:.98;text-transform:uppercase;transform:rotate(-.5deg)}
+  h1 span{display:block;font-size:31px;letter-spacing:2px;margin-top:4px}
+  .form{margin:14px auto 0;width:640px;border:2px solid #14120f;font-family:'Courier New',monospace;font-size:19px}
+  .form .r{display:flex;border-bottom:1px solid #14120f}
+  .form .r:last-child{border-bottom:none}
+  .form .k{width:240px;padding:5px 10px;border-right:1px solid #14120f;font-weight:bold}
+  .form .v{flex:1;padding:5px 10px}
+  .red{color:#8a1f1f;font-weight:bold}
+  .stamp{position:absolute;right:110px;bottom:60px;transform:rotate(-14deg);
+    border:5px solid #8a1f1f;color:#8a1f1f;font-family:'Arial Black',sans-serif;
+    font-size:38px;padding:8px 16px;letter-spacing:3px;opacity:.7}
+  .foot{position:absolute;bottom:12px;left:96px;right:96px;font-family:'Courier New',monospace;font-size:16px;transform:rotate(-.5deg)}
+  /* frame-safe zone: Rust picture frames show a ~4:3 center crop (~107px off each side) */
+  .safe{position:absolute;left:0;top:0;width:854px;height:480px;transform:scale(.72);transform-origin:50% 50%}
+  /* dirt pass: brown multiply cast + vignette + stains so prints sit next to Rust's own papers */
+  .dirt{position:absolute;left:0;top:0;width:854px;height:480px;pointer-events:none;mix-blend-mode:multiply;
+    background:
+      radial-gradient(120% 95% at 50% 45%, rgba(58,45,26,0) 48%, rgba(58,45,26,.55) 100%),
+      radial-gradient(230px 170px at 6% 84%, rgba(88,66,36,.34), transparent 70%),
+      radial-gradient(270px 190px at 94% 14%, rgba(88,66,36,.30), transparent 70%),
+      radial-gradient(170px 130px at 78% 80%, rgba(104,80,42,.26), transparent 70%),
+      radial-gradient(210px 150px at 20% 12%, rgba(76,58,32,.22), transparent 70%),
+      radial-gradient(90px 60px at 46% 26%, rgba(90,70,40,.18), transparent 70%),
+      linear-gradient(rgba(122,96,56,.42), rgba(122,96,56,.42))}
+</style>
+<div class="paper"></div>
+<div class="noise"></div>
+<div class="safe">
+<div class="inner">
+  <div class="top">FREEDOM OF INFORMATION REQUEST &nbsp;·&nbsp; RESULT ATTACHED</div>
+  <h1>Nobody drives the tank.<span>we requested the records.</span></h1>
+  <div class="form">
+    <div class="r"><div class="k">VEHICLE</div><div class="v">BRADLEY APV, LAUNCH SITE PERIMETER</div></div>
+    <div class="r"><div class="k">OPERATOR ON FILE</div><div class="v red">NONE — NO RECORD EXISTS</div></div>
+    <div class="r"><div class="k">FUEL PURCHASES</div><div class="v red">NONE — NO RECORD EXISTS</div></div>
+    <div class="r"><div class="k">HATCH OPENED, LAST</div><div class="v red">NEVER</div></div>
+  </div>
+</div>
+<div class="stamp">NO OPERATOR</div>
+<div class="foot">it turns to look at you. things without eyes should not turn to look at you.</div>
+</div>
+<div class="dirt"></div>

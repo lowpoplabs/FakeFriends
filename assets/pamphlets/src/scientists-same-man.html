@@ -1,0 +1,72 @@
+<meta charset="utf-8">
+<style>
+  html,body{margin:0;width:854px;height:480px;overflow:hidden;background:#0d0d0d}
+  .paper{position:absolute;inset:0;background:#e2ddd0;
+    background-image:repeating-linear-gradient(90deg, transparent 0 6px, rgba(0,0,0,.015) 6px 7px);
+    transform:rotate(-.4deg) scale(1.02)}
+  .noise{position:absolute;inset:0;opacity:.45;mix-blend-mode:multiply;
+    background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence baseFrequency="0.95" numOctaves="2"/><feColorMatrix values="0 0 0 0 0.3 0 0 0 0 0.3 0 0 0 0 0.28 0 0 0 0.38 0"/></filter><rect width="160" height="160" filter="url(%23n)"/></svg>')}
+  .inner{position:absolute;inset:20px 96px;font-family:'Courier New',monospace;color:#15130f}
+  .head{font-size:16px;letter-spacing:1px;border-bottom:2px solid #15130f;padding-bottom:4px;white-space:nowrap}
+  h1{font-size:50px;margin:8px 0 2px;letter-spacing:0;line-height:1.05;font-weight:bold}
+  .row{display:flex;gap:8px;margin-top:10px;align-items:flex-end}
+  .guy{flex:1;text-align:center;font-size:16px;line-height:1.1}
+  .guy pre{margin:0 0 4px;font-size:19px;line-height:1.05}
+  .verdict{margin-top:10px;font-size:20px;font-weight:bold;line-height:1.35}
+  .verdict .hl{background:#15130f;color:#e2ddd0;padding:0 4px}
+  .circle{position:absolute;border:3px solid #8a1f1f;border-radius:50%;opacity:.8}
+  .note{position:absolute;color:#8a1f1f;font-size:19px;font-weight:bold;transform:rotate(-4deg)}
+  .foot{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-family:'Courier New',monospace;
+    font-size:19px;font-weight:bold;letter-spacing:2px;color:#15130f}
+  .checklist{margin:8px auto 0;width:660px;font-size:15px;line-height:1.5}
+  .checklist span{display:block}
+  /* frame-safe zone: Rust picture frames show a ~4:3 center crop (~107px off each side) */
+  .safe{position:absolute;left:0;top:0;width:854px;height:480px;transform:scale(.72);transform-origin:50% 50%}
+  /* dirt pass: brown multiply cast + vignette + stains so prints sit next to Rust's own papers */
+  .dirt{position:absolute;left:0;top:0;width:854px;height:480px;pointer-events:none;mix-blend-mode:multiply;
+    background:
+      radial-gradient(120% 95% at 50% 45%, rgba(58,45,26,0) 48%, rgba(58,45,26,.55) 100%),
+      radial-gradient(230px 170px at 8% 92%, rgba(88,66,36,.34), transparent 70%),
+      radial-gradient(270px 190px at 92% 6%, rgba(88,66,36,.30), transparent 70%),
+      radial-gradient(170px 130px at 80% 86%, rgba(104,80,42,.26), transparent 70%),
+      radial-gradient(210px 150px at 24% 4%, rgba(76,58,32,.22), transparent 70%),
+      radial-gradient(90px 60px at 50% 28%, rgba(90,70,40,.18), transparent 70%),
+      linear-gradient(rgba(122,96,56,.42), rgba(122,96,56,.42))}
+</style>
+<div class="paper"></div>
+<div class="noise"></div>
+<div class="safe">
+<div class="inner">
+  <div class="head">FIELD REPORT 44-C &nbsp;·&nbsp; SUBJECT: PERSONNEL, SO-CALLED "SCIENTISTS"</div>
+  <h1>EVERY SCIENTIST IS<br>THE SAME MAN.</h1>
+  <div class="row">
+    <div class="guy"><pre> [o]
+ /|\
+ / \</pre>DOME<br>height: 1.83m</div>
+    <div class="guy"><pre> [o]
+ /|\
+ / \</pre>TRAINYARD<br>height: 1.83m</div>
+    <div class="guy"><pre> [o]
+ /|\
+ / \</pre>AIRFIELD<br>height: 1.83m</div>
+    <div class="guy"><pre> [o]
+ /|\
+ / \</pre>OIL RIG<br>height: 1.83m</div>
+    <div class="guy"><pre> [o]
+ /|\
+ / \</pre>LAUNCH SITE<br>height: 1.83m</div>
+  </div>
+  <div class="verdict">
+    We measured. Same height. Same walk. Same voice saying the same nine things.
+    You have shot him <span class="hl">a thousand times</span> and he keeps
+    <span class="hl">coming back</span>. WHERE ARE THEY GROWING HIM?
+  </div>
+  <div class="checklist">
+    <span>[x] never eats &nbsp;[x] never sleeps &nbsp;[x] radios someone on sight. WHO IS LISTENING?</span>
+  </div>
+</div>
+<div class="foot">COMPARE FOR YOURSELF. BRING CALIPERS. TELL NO ONE.</div>
+<div class="circle" style="left:585px;top:128px;width:115px;height:115px"></div>
+<div class="note" style="left:592px;top:248px">same man!!</div>
+</div>
+<div class="dirt"></div>

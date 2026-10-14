@@ -1,0 +1,62 @@
+<meta charset="utf-8">
+<style>
+  html,body{margin:0;width:854px;height:480px;overflow:hidden;background:#0d0d0d}
+  .paper{position:absolute;inset:0;background:#ded8c2;
+    background-image:
+      radial-gradient(ellipse 250px 180px at 20% 85%, rgba(60,50,30,.2), transparent),
+      radial-gradient(circle 60px at 92% 12%, rgba(101,67,33,.25), transparent 70%);
+    transform:rotate(.5deg) scale(1.02)}
+  .noise{position:absolute;inset:0;opacity:.55;mix-blend-mode:multiply;
+    background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="n"><feTurbulence baseFrequency="0.85" numOctaves="2"/><feColorMatrix values="0 0 0 0 0.35 0 0 0 0 0.33 0 0 0 0 0.28 0 0 0 0.4 0"/></filter><rect width="180" height="180" filter="url(%23n)"/></svg>')}
+  .inner{position:absolute;inset:18px 96px;color:#14120e}
+  h1{font-family:Impact,'Arial Black',sans-serif;font-size:68px;margin:0;line-height:.95;
+    letter-spacing:1px;text-transform:uppercase;transform:rotate(-.8deg)}
+  h1 .q{color:#8a1f1f}
+  .sub{font-family:'Courier New',monospace;font-size:23px;font-weight:bold;margin:8px 0 0;letter-spacing:1px}
+  .cols{display:flex;gap:22px;margin-top:10px}
+  .col{flex:1;font-family:'Courier New',monospace;font-size:19px;line-height:1.35}
+  .col b{background:#14120e;color:#ded8c2;padding:0 3px}
+  .ship{font-family:'Courier New',monospace;font-size:19px;white-space:pre;line-height:1.1;
+    position:absolute;right:96px;bottom:22px;transform:rotate(1deg);color:#2a2620}
+  .stamp{position:absolute;left:110px;top:330px;transform:rotate(8deg);
+    border:4px double #1f4a8a;color:#1f4a8a;font-family:'Courier New',monospace;font-weight:bold;
+    font-size:32px;padding:5px 14px;letter-spacing:4px;opacity:.6}
+  /* frame-safe zone: Rust picture frames show a ~4:3 center crop (~107px off each side) */
+  .safe{position:absolute;left:0;top:0;width:854px;height:480px;transform:scale(.72);transform-origin:50% 50%}
+  /* dirt pass: brown multiply cast + vignette + stains so prints sit next to Rust's own papers */
+  .dirt{position:absolute;left:0;top:0;width:854px;height:480px;pointer-events:none;mix-blend-mode:multiply;
+    background:
+      radial-gradient(120% 95% at 50% 45%, rgba(58,45,26,0) 48%, rgba(58,45,26,.55) 100%),
+      radial-gradient(230px 170px at 16% 92%, rgba(88,66,36,.34), transparent 70%),
+      radial-gradient(270px 190px at 84% 6%, rgba(88,66,36,.30), transparent 70%),
+      radial-gradient(170px 130px at 74% 78%, rgba(104,80,42,.26), transparent 70%),
+      radial-gradient(210px 150px at 26% 14%, rgba(76,58,32,.22), transparent 70%),
+      radial-gradient(90px 60px at 52% 40%, rgba(90,70,40,.18), transparent 70%),
+      linear-gradient(rgba(122,96,56,.42), rgba(122,96,56,.42))}
+</style>
+<div class="paper"></div>
+<div class="noise"></div>
+<div class="safe">
+<div class="inner">
+  <h1>The cargo ship<br>has never docked. <span class="q">Not once.</span></h1>
+  <div class="sub">SO WHO KEEPS LOADING THE CRATES?</div>
+  <div class="cols">
+    <div class="col">
+      It circles. It circles for hours. Then it leaves, LOW in the water,
+      and comes back HIGHER. Think about what that means for
+      <b>displacement</b>. Think about what it means for <b>you</b>.
+    </div>
+    <div class="col">
+      There is no port on this island. There has NEVER been a port on this
+      island. Ask yourself why the horn sounds like it is
+      <b>answering someone</b>.
+    </div>
+  </div>
+  <div class="ship">        ______|__|__
+   ____|  [] [] []  |____
+   \  o o o o o o o o  /
+~~~~~~~~~~~~~~~~~~~~~~~~~~~</div>
+</div>
+<div class="stamp">STILL AT SEA</div>
+</div>
+<div class="dirt"></div>
