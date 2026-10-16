@@ -10,7 +10,7 @@ using UnityEngine.AI;
 
 namespace Oxide.Plugins
 {
-    [Info("Fake Friends", "LowPopLabs", "0.21.1")]
+    [Info("Fake Friends", "LowPopLabs", "0.21.2")]
     [Description("Persistent, player-like NPC residents for low-pop servers: recurring characters with personas, play schedules, sleeper bodies, home regions, and real deaths. Friendship not included.")]
     public class FakeFriends : RustPlugin
     {
@@ -3952,6 +3952,7 @@ namespace Oxide.Plugins
             public bool Retreating;     // sensed danger / hurt — falling back to base to hole up
             public float NextMutterAt;  // grudge-callout chat cooldown (realtime)
             public float RetreatCheckAt; // realtime — throttle the threat scan
+            public float PatrolStoryAt;  // realtime — last "took cover from" story beat (v0.21.2 throttle)
             // Phase 7 attend-on-approach: pause + face a player who walks up
             public float AttendCheckAt;      // realtime — 1 Hz proximity scan throttle
             public float AttendUntil;        // attending while now < this (0 = not attending)
@@ -13628,18 +13629,26 @@ namespace Oxide.Plugins
         // Patrol-grade danger you can't melee your way out of — flee-to-cover threats.
         // (Bears/wolves are handled as fight-back threats, not flee threats — you can't
         // outrun a bear, and fleeing home just gets you mauled standing still.)
-        private BaseEntity SensePatrolThreat(BasePlayer bot, float caution)
+        private BaseEntity SensePatrolThreat(BasePlayer bot, float caution) =>
+            SensePatrolThreatAt(bot.transform.position, caution, 1f);
+
+        // v0.21.2: `scale` is the hysteresis knob — the all-clear check scans a wider
+        // circle than the alarm (PatrolClearScale), so a threat parked at the edge of
+        // detection can't flip the bot in and out every hold (TrapperJoe 194×/6 days,
+        // GrannyMags 378×, 1,556 "took cover" story beats one wipe — every cycle
+        // dropped the gather job and walked the shell).
+        private BaseEntity SensePatrolThreatAt(Vector3 pos, float caution, float scale)
         {
-            var pos = bot.transform.position;
             // Ranges raised 2026-07-23 (live: bots strolled out mid-heli-patrol) —
             // players hear a heli from very far; bots should act like they do too.
-            var r = Mathf.Lerp(50f, 90f, caution);
+            var r = Mathf.Lerp(50f, 90f, caution) * scale;
             var t = NearestScientist(pos, r);
             if (t != null) return t;
-            t = NearestThreatOf<PatrolHelicopter>(pos, Mathf.Max(r, 180f)); // loud + deadly from far
+            t = NearestThreatOf<PatrolHelicopter>(pos, Mathf.Max(r, 180f * scale)); // loud + deadly from far
             if (t != null) return t;
-            return NearestThreatOf<BradleyAPC>(pos, Mathf.Max(r, 130f));
+            return NearestThreatOf<BradleyAPC>(pos, Mathf.Max(r, 130f * scale));
         }
+        private const float PatrolClearScale = 1.3f;
 
         // Both scientist generations in one scan — a typed List<ScientistNPC> sweep
         // can't see ScientistNPC2 (separate hierarchy), same trap as the old
@@ -13654,6 +13663,13 @@ namespace Oxide.Plugins
             foreach (var e in list)
             {
                 if (e == null || e.IsDestroyed || e.IsDead() || !IsScientist(e)) continue;
+                // v0.21.2: not every scientist silhouette is a threat to flee. Our own
+                // legacy-chassis hostiles derive from ScientistNPC — residents must not
+                // see through the Cobalt disguise on sight (v0.10 doctrine) — and
+                // Outpost/Bandit peacekeepers never leave their zone; an anchor 30 m
+                // past the zone edge sat inside the 50–90 m alarm radius forever.
+                if (e is HostileNpc) continue;
+                if (InOrNearSafeZone(e.transform.position, 1f)) continue;
                 var d = (e.transform.position - pos).sqrMagnitude;
                 if (d < bestSq) { bestSq = d; best = e; }
             }
@@ -13730,8 +13746,17 @@ namespace Oxide.Plugins
         {
             if (e is PatrolHelicopter) return "patrol helicopter";
             if (e is BradleyAPC) return "Bradley";
-            if (IsScientist(e)) return "patrol"; // old-gen or Gen2
+            if (IsScientist(e)) return "scientist"; // old-gen or Gen2 ("patrol" read as the heli — v0.21.2)
             return AnimalName(e); // bear / wolf
+        }
+
+        // Console-only forensic tag: WHAT the threat is and how far — so a looping
+        // retreat line names its cause (peacekeeper? junkpile scientist? a plugin NPC?).
+        private static string ThreatTag(BaseEntity e, BasePlayer bot)
+        {
+            if (e == null) return "?";
+            var dist = Vector3.Distance(e.transform.position, bot.transform.position);
+            return $"{ThreatName(e)} ({e.ShortPrefabName}, {dist:0}m)";
         }
 
         // The interior spot a bot ducks into to heal/hide — its bed (inside, where it
@@ -13892,13 +13917,19 @@ namespace Oxide.Plugins
                     else PlanPathTo(bot, ws, home); // walk to the anchor; duck inside on arrival
                     if (patrol != null && ws.LeadAway)
                     {
-                        DLog($"[retreat] {rec.Identity.Name} is target-locked by a {ThreatName(patrol)} — leading it AWAY from home");
+                        DLog($"[retreat] {rec.Identity.Name} is target-locked by a {ThreatTag(patrol, bot)} — leading it AWAY from home");
                         Story("retreat", $"{rec.Identity.Name} broke for open ground, leading the {ThreatName(patrol)} away from home");
                     }
                     else if (patrol != null)
                     {
-                        DLog($"[retreat] {rec.Identity.Name} spotted a {ThreatName(patrol)} — falling back to base");
-                        Story("retreat", $"{rec.Identity.Name} took cover from a {ThreatName(patrol)}");
+                        DLog($"[retreat] {rec.Identity.Name} spotted a {ThreatTag(patrol, bot)} — falling back to base");
+                        // v0.21.2: one story beat per 10 min per bot — a parked threat used
+                        // to write "took cover" every cycle (1,556 beats in one wipe).
+                        if (now - ws.PatrolStoryAt >= 600f)
+                        {
+                            ws.PatrolStoryAt = now;
+                            Story("retreat", $"{rec.Identity.Name} took cover from a {ThreatName(patrol)}");
+                        }
                     }
                     else if (grudged != null)
                     {
@@ -13940,10 +13971,16 @@ namespace Oxide.Plugins
                     // Heli/Bradley keep EVERYONE indoors — they're never-fight targets
                     // (6C doctrine), so CanFight must not excuse stepping out under one
                     // (live 2026-07-23: geared bots wandered out mid-heli-patrol).
-                    var yardThreat = SensePatrolThreat(bot, caution);
+                    // v0.21.2 hysteresis: scan from the YARD (where he steps out to) over
+                    // PatrolClearScale× the alarm radius — sheltered at the bed he sat a
+                    // few metres further from an edge-of-range threat than the yard did.
+                    var yardThreat = SensePatrolThreatAt(yard, caution, PatrolClearScale);
                     var armorPatrol = yardThreat is PatrolHelicopter || yardThreat is BradleyAPC;
                     var yardBeast = NearestDangerAnimal(yard, 35f);
-                    if (armorPatrol || (yardThreat != null && !CanFight(rec, bot)) ||
+                    // Scientists/heli/Bradley are never resident fight targets (PickFightTarget
+                    // lists hostiles, grudges and beasts only), so CanFight can't excuse
+                    // stepping out under one — it only ever re-armed the loop (v0.21.2).
+                    if (armorPatrol || yardThreat != null ||
                         (yardBeast != null && !CanFight(rec, bot, yardBeast))) // armed bots step out into a camped yard — and fight it
                     {
                         ws.HoldUntil = now + 15f;

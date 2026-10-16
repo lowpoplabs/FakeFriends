@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.21.2] — 2026-10-16 — retreat: honest "patrol" line, hysteresis, peacekeepers
+
+Paul's brother read `[retreat] MaribelSook spotted a patrol — falling back to base`
+with no heli up. "Patrol" was the label for any scientist-class NPC within the
+50–90 m alarm radius (the heli says "patrol helicopter"), and the illmatic log showed
+the same residents flipping in and out of cover every ~30 s for days — TrapperJoe
+194 times and GrannyMags 378 times over six days, 1,556 "took cover from a patrol"
+story beats this wipe. The alarm and the all-clear used the same radius, the all-clear
+was scanned from the bed indoors while the alarm fired from the yard, and armed bots
+were let back out under a scientist they can never fight (scientists are not
+`PickFightTarget` foes), so a scientist parked at the edge of range re-armed the loop
+every hold. Each cycle dropped the gather job and walked the shell.
+
+- **The line names its cause.** `[retreat] X spotted a scientist (scientistnpc_peacekeeper, 64m)`
+  — threat type, prefab short name and distance; the story beat keeps prose.
+- **Hysteresis.** The all-clear scans from the yard anchor over 1.3× the alarm radius
+  (`PatrolClearScale`): a threat must leave the wider circle before the bot steps out,
+  and it must re-enter the narrower one to send him back in.
+- **Non-threat scientists are ignored by the sense**: Outpost/Bandit peacekeepers
+  (inside a `TriggerSafeZone`, which never leave it) and the plugin's own legacy-chassis
+  `HostileNpc` (residents must not see through the Cobalt disguise on sight — the
+  v0.10 doctrine). `IsScientist` itself is unchanged (monument-run scoring, kill names).
+- **Door stays shut under any patrol-grade threat**: the step-out gate no longer lets
+  `CanFight` excuse walking out under a scientist, heli or Bradley.
+- **Story throttle**: one "took cover" beat per bot per 10 minutes.
+- Watch: the next `spotted a scientist (…)` lines on both servers name what was actually
+  parked near TrapperJoe/GrannyMags/Cinder/Soot/Slagg and MaribelSook.
+
 ## [0.21.1] — 2026-10-11 — zombies (scarecrows) respect the wildlife valves
 
 A test server running Night Zombies reported its scarecrows hunting residents like
