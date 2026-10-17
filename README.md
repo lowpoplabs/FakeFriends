@@ -20,7 +20,7 @@ map, a pamphlet left at your door, a rumour in chat about where somebody is smel
 > navmesh) is the newest part and has had little play, so please report anything odd there.
 
 <!-- lpl:links -->
-**[Download v0.21.1](https://github.com/lowpoplabs/FakeFriends/releases/latest)** · **Flyer:** [web](https://lowpoplabs.github.io/flyers/FakeFriends.html) / [PDF](FakeFriends-Flyer.pdf) · **[Changelog](CHANGELOG.md)** · **[Ko-fi](https://ko-fi.com/lowpoplabs)**
+**[Download v0.21.3](https://github.com/lowpoplabs/FakeFriends/releases/latest)** · **Flyer:** [web](https://lowpoplabs.github.io/flyers/FakeFriends.html) / [PDF](FakeFriends-Flyer.pdf) · **[Changelog](CHANGELOG.md)** · **[Ko-fi](https://ko-fi.com/lowpoplabs)**
 <!-- /lpl:links -->
 
 ## How it works (in-game)
