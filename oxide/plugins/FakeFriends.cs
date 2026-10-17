@@ -10,7 +10,7 @@ using UnityEngine.AI;
 
 namespace Oxide.Plugins
 {
-    [Info("Fake Friends", "LowPopLabs", "0.21.2")]
+    [Info("Fake Friends", "LowPopLabs", "0.21.3")]
     [Description("Persistent, player-like NPC residents for low-pop servers: recurring characters with personas, play schedules, sleeper bodies, home regions, and real deaths. Friendship not included.")]
     public class FakeFriends : RustPlugin
     {
@@ -3953,6 +3953,13 @@ namespace Oxide.Plugins
             public float NextMutterAt;  // grudge-callout chat cooldown (realtime)
             public float RetreatCheckAt; // realtime — throttle the threat scan
             public float PatrolStoryAt;  // realtime — last "took cover from" story beat (v0.21.2 throttle)
+            // v0.21.3 danger memory: where the last patrol-grade threat stood. Work
+            // and wander goal picking steer clear of it while it's fresh, and a repeat
+            // alarm from the same spot holds the bot indoors for minutes, not seconds.
+            public Vector3 DangerPos;
+            public float DangerRadius;
+            public float DangerUntil;    // realtime — memory expiry (refreshed per alarm)
+            public int DangerHits;       // consecutive alarms from the same spot
             // Phase 7 attend-on-approach: pause + face a player who walks up
             public float AttendCheckAt;      // realtime — 1 Hz proximity scan throttle
             public float AttendUntil;        // attending while now < this (0 = not attending)
@@ -4397,6 +4404,7 @@ namespace Oxide.Plugins
             {
                 var pick = UnityEngine.Random.insideUnitCircle * radius;
                 var goal = home + new Vector3(pick.x, 0f, pick.y);
+                if (InDangerZone(ws, goal, Time.realtimeSinceStartup)) continue; // v0.21.3: not back toward the scientist
                 // Reject routes that clip a cactus etc.; another random target will clear.
                 if (PlanPathTo(bot, ws, goal) && PathClearOfObstacles(bot, ws)) return true;
             }
@@ -13078,7 +13086,13 @@ namespace Oxide.Plugins
 
         // Nearest entity of type T carrying a ResourceDispenser (tree / ore node).
         // Typed Vis.Entities is the proven query (Phase 0) — the type is the filter.
-        private T NearestDispenserOf<T>(Vector3 pos, float radius) where T : BaseEntity
+        private T NearestDispenserOf<T>(Vector3 pos, float radius) where T : BaseEntity =>
+            NearestDispenserOf<T>(pos, radius, null, 0f);
+
+        // v0.21.3: with a WanderState, nodes inside the bot's fresh danger memory are
+        // skipped — Soot's nearest ore sat beside a junkpile scientist, so every
+        // all-clear walked him straight back into the alarm (43 cycles in 50 min).
+        private T NearestDispenserOf<T>(Vector3 pos, float radius, WanderState ws, float now) where T : BaseEntity
         {
             var list = new List<T>();
             Vis.Entities(pos, radius, list);
@@ -13087,6 +13101,7 @@ namespace Oxide.Plugins
             foreach (var e in list)
             {
                 if (e == null || e.IsDestroyed || e.GetComponent<ResourceDispenser>() == null) continue;
+                if (ws != null && InDangerZone(ws, e.transform.position, now)) continue;
                 var d = (e.transform.position - pos).sqrMagnitude;
                 if (d < bestSq) { bestSq = d; best = e; }
             }
@@ -13253,7 +13268,7 @@ namespace Oxide.Plugins
             if (ProfileHunts(rec) && bot.health > 70f)
             {
                 var prey = NearestAnimal(home, radius);
-                if (prey != null && (NearestDispenserOf<TreeEntity>(home, radius) == null || UnityEngine.Random.value < 0.5f))
+                if (prey != null && (NearestDispenserOf<TreeEntity>(home, radius, ws, now) == null || UnityEngine.Random.value < 0.5f))
                 {
                     StartHunt(rec, bot, ws, wk, prey, now);
                     return;
@@ -13274,9 +13289,9 @@ namespace Oxide.Plugins
 
             BaseEntity target = null;
             var oreFirst = wantsOre && (!wantsTree || UnityEngine.Random.value < 0.5f);
-            if (oreFirst) target = NearestDispenserOf<OreResourceEntity>(home, radius);
-            if (target == null && wantsTree) target = NearestDispenserOf<TreeEntity>(home, radius);
-            if (target == null && wantsOre && !oreFirst) target = NearestDispenserOf<OreResourceEntity>(home, radius);
+            if (oreFirst) target = NearestDispenserOf<OreResourceEntity>(home, radius, ws, now);
+            if (target == null && wantsTree) target = NearestDispenserOf<TreeEntity>(home, radius, ws, now);
+            if (target == null && wantsOre && !oreFirst) target = NearestDispenserOf<OreResourceEntity>(home, radius, ws, now);
             if (target == null)
             {
                 // Nothing to gather in range — fall back to idle wander (re-checked at
@@ -13649,6 +13664,11 @@ namespace Oxide.Plugins
             return NearestThreatOf<BradleyAPC>(pos, Mathf.Max(r, 130f * scale));
         }
         private const float PatrolClearScale = 1.3f;
+        private const float DangerMemorySeconds = 900f; // 15 min — outlives a hold, not a session
+        private const float DangerRepeatHoldSeconds = 300f;
+
+        private static bool InDangerZone(WanderState ws, Vector3 p, float now) =>
+            now < ws.DangerUntil && FlatDistance(p, ws.DangerPos) <= ws.DangerRadius;
 
         // Both scientist generations in one scan — a typed List<ScientistNPC> sweep
         // can't see ScientistNPC2 (separate hierarchy), same trap as the old
@@ -13865,8 +13885,22 @@ namespace Oxide.Plugins
 
             if (patrol != null || grudged != null || hurt || shotAt != null)
             {
+                var repeatHold = false;
                 if (!ws.Retreating)
                 {
+                    if (patrol != null)
+                    {
+                        // v0.21.3 danger memory (see WanderState): same spot again while
+                        // the memory is fresh → the job/wander avoidance didn't keep him
+                        // away (or the threat moved with him) — hold indoors for minutes.
+                        var tpos = patrol.transform.position;
+                        var sameSpot = now < ws.DangerUntil && FlatDistance(tpos, ws.DangerPos) <= ws.DangerRadius;
+                        ws.DangerHits = sameSpot ? ws.DangerHits + 1 : 1;
+                        ws.DangerPos = tpos;
+                        ws.DangerRadius = Mathf.Lerp(50f, 90f, caution) * PatrolClearScale;
+                        ws.DangerUntil = now + DangerMemorySeconds;
+                        repeatHold = ws.DangerHits >= 2;
+                    }
                     ws.Retreating = true;
                     ws.Sheltered = false;
                     ws.LeadAway = false;
@@ -13922,7 +13956,8 @@ namespace Oxide.Plugins
                     }
                     else if (patrol != null)
                     {
-                        DLog($"[retreat] {rec.Identity.Name} spotted a {ThreatTag(patrol, bot)} — falling back to base");
+                        DLog($"[retreat] {rec.Identity.Name} spotted a {ThreatTag(patrol, bot)} — falling back to base" +
+                            (repeatHold ? $" (same spot, {ws.DangerHits}× — holding {DangerRepeatHoldSeconds / 60f:0} min)" : ""));
                         // v0.21.2: one story beat per 10 min per bot — a parked threat used
                         // to write "took cover" every cycle (1,556 beats in one wipe).
                         if (now - ws.PatrolStoryAt >= 600f)
@@ -13951,7 +13986,8 @@ namespace Oxide.Plugins
                         else ws.RetreatStory = $"{rec.Identity.Name} holed up at home to heal";
                     }
                 }
-                ws.HoldUntil = now + (hurt && patrol == null && grudged == null ? 5f : 20f);
+                // Max: the per-tick re-arm must not shorten a repeat-alarm hold (v0.21.3).
+                ws.HoldUntil = Mathf.Max(ws.HoldUntil, now + (hurt && patrol == null && grudged == null ? 5f : (repeatHold ? DangerRepeatHoldSeconds : 20f)));
                 return;
             }
             if (ws.Retreating)

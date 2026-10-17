@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.21.3] — 2026-10-17 — retreat: danger memory (the job walked him back into it)
+
+The v0.21.2 hysteresis halved the retreat rate overnight (14.7/h → 7.0/h) and the
+new tag named every cause: junkpile scientists (`scientistnpc_junkpile_pistol`) at
+59–71 m beside the furnace brothers' ore node, CH-47 gunners passing MaribelSook and
+LootGoblinTV, one heli. But Soot still cycled 43 times in 50 minutes: the all-clear
+(scanned from the yard at 1.3×) passed honestly, then `StartNextWorkTarget` picked the
+same nearest ore node, he walked back to ~65 m of the junkpile and alarmed again.
+
+- **Danger memory** on `WanderState`: the alarm records the threat's position and a
+  1.3× alarm radius for 15 minutes (refreshed per alarm). `NearestDispenserOf` skips
+  nodes inside it when work picks the next target, and `PlanNewWanderPath` re-rolls
+  wander goals that land in it.
+- **Repeat alarm from the same spot holds the door 5 minutes** instead of 20 s, logged
+  on the line (`same spot, 3× — holding 5 min`); the per-tick re-arm can no longer
+  shorten a hold. Caps any residual loop to 12 cycles an hour per bot.
+
 ## [0.21.2] — 2026-10-16 — retreat: honest "patrol" line, hysteresis, peacekeepers
 
 Paul's brother read `[retreat] MaribelSook spotted a patrol — falling back to base`
