@@ -13,7 +13,7 @@ It is made for servers where you are usually the only human online. Log in and f
 evidence that the island kept going without you: a new shop in a hamlet, a grave on the
 map, a pamphlet left at your door, a rumour in chat about where somebody is smelting.
 
-> **Status: 0.21.1.** It has run on a live server since July 2026, across several wipes,
+> **Status: 0.21.3.** It has run on a live server since July 2026, across several wipes,
 > and most of what is described here has been watched working with real players on.
 > The defaults are tuned for one server and a large map; expect to adjust them. Interior
 > navigation (residents walking through their own doors on the game's new RustNav

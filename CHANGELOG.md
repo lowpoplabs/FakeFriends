@@ -19,9 +19,9 @@ same nearest ore node, he walked back to ~65 m of the junkpile and alarmed again
 
 ## [0.21.2] — 2026-10-16 — retreat: honest "patrol" line, hysteresis, peacekeepers
 
-Paul's brother read `[retreat] MaribelSook spotted a patrol — falling back to base`
+A player on a second server read `[retreat] MaribelSook spotted a patrol — falling back to base`
 with no heli up. "Patrol" was the label for any scientist-class NPC within the
-50–90 m alarm radius (the heli says "patrol helicopter"), and the illmatic log showed
+50–90 m alarm radius (the heli says "patrol helicopter"), and the live server's log showed
 the same residents flipping in and out of cover every ~30 s for days — TrapperJoe
 194 times and GrannyMags 378 times over six days, 1,556 "took cover from a patrol"
 story beats this wipe. The alarm and the all-clear used the same radius, the all-clear
