@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.21.4] — 2026-10-19 — presence API: residents count on a server HUD
+
+A server HUD (ahigao's Hud) counts "online" from `BasePlayer.activePlayerList`, which the
+engine fills only from a real network connection, so an online resident appeared in
+neither of its numbers: it left the Sleep count on waking and never joined Online.
+Offline residents were already right (they are ordinary sleepers).
+
+- **`GetOnlineBotCount` API** (`FakeFriends.Call`): residents with status Online and a
+  live, non-dead body.
+- **`OnFakeFriendsPresenceChanged(int)` hook** fired to all plugins when that count
+  moves (session start/end, death, respawn, 30 s scheduler catch-all; `0` on unload).
+- **`integrations/Hud.ff.patch`**: the three-hunk Hud patch that adds the count to
+  its Online number, with re-apply notes in `integrations/README.md`. Bots are
+  deliberately not pushed into `activePlayerList` (Steam player count, anti-hack state
+  arrays and every connection-assuming plugin read from it).
+
 ## [0.21.3] — 2026-10-17 — retreat: danger memory (the job walked him back into it)
 
 The v0.21.2 hysteresis halved the retreat rate overnight (14.7/h → 7.0/h) and the

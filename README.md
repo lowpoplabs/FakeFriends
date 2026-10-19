@@ -380,6 +380,11 @@ edited or localised in `oxide/lang/en/FakeFriends.json`.
   shops. Nothing changes without it.
 - **Night Zombies**: its scarecrows are treated as wildlife, so the wildlife valves and
   camp breaker cover them and armed residents fight them.
+- **Server HUDs and player counters**: an online resident is in neither engine player
+  list (only a real connection joins `activePlayerList`), so a HUD's Online number misses
+  it while its Sleep number already counts offline residents. The plugin exposes
+  `GetOnlineBotCount` and fires `OnFakeFriendsPresenceChanged`; a ready patch for
+  ahigao's Hud is in [integrations](integrations/README.md).
 
 ## Compatibility
 

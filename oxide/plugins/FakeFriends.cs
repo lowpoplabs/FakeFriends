@@ -10,7 +10,7 @@ using UnityEngine.AI;
 
 namespace Oxide.Plugins
 {
-    [Info("Fake Friends", "LowPopLabs", "0.21.3")]
+    [Info("Fake Friends", "LowPopLabs", "0.21.4")]
     [Description("Persistent, player-like NPC residents for low-pop servers: recurring characters with personas, play schedules, sleeper bodies, home regions, and real deaths. Friendship not included.")]
     public class FakeFriends : RustPlugin
     {
@@ -3450,6 +3450,7 @@ namespace Oxide.Plugins
                     }
                 }
             }
+            NotifyPresence(); // catch-all for any status flip above (HUD redraw)
         }
 
         // Connection-less bots don't run metabolism, so a mauled bot would be stuck
@@ -3536,6 +3537,7 @@ namespace Oxide.Plugins
             MarkDirty(rec.Identity.BotId);
             DLog($"[session] {rec.Identity.Name} came online for {hours:0.0}h ({rec.Identity.Persona}, home {rec.State.HomeBiome})");
             if (_config.PresenceJoinLeave) PrintToChat(L("Presence.Join", rec.Identity.Name));
+            NotifyPresence();
         }
 
         // Session end is a two-step exit: walk home first (visible teleports break the
@@ -3632,6 +3634,7 @@ namespace Oxide.Plugins
                 MarkDirty(botId);
                 DLog($"[session] {rec.Identity.Name} came online for {nhours:0.0}h (Hostile prowl, native body, radius {HostilePatrolRadius(rec):0}m)");
                 if (_config.PresenceJoinLeave) PrintToChat(L("Presence.Join", rec.Identity.Name));
+                NotifyPresence();
                 return;
             }
             // Legacy scientist chassis: the offline sleeper body steps aside for the
@@ -3663,6 +3666,7 @@ namespace Oxide.Plugins
             MarkDirty(botId);
             DLog($"[session] {rec.Identity.Name} came online for {hours:0.0}h (Hostile prowl, radius {h.RoamRadius:0}m)");
             if (_config.PresenceJoinLeave) PrintToChat(L("Presence.Join", rec.Identity.Name));
+            NotifyPresence();
         }
 
         private void EndHostileSession(BotRecord rec)
@@ -3742,6 +3746,7 @@ namespace Oxide.Plugins
             MarkDirty(botId);
             DLog($"[session] {rec.Identity.Name} went offline (sleeper at camp), next session {rec.State.NextSessionAt}");
             if (_config.PresenceJoinLeave) PrintToChat(L("Presence.Leave", rec.Identity.Name));
+            NotifyPresence();
         }
 
         private void FinalizeSessionEnd(BotRecord rec)
@@ -3775,6 +3780,7 @@ namespace Oxide.Plugins
             MarkDirty(rec.Identity.BotId);
             DLog($"[session] {rec.Identity.Name} went offline (sleeper at home), next session {rec.State.NextSessionAt}");
             if (_config.PresenceJoinLeave) PrintToChat(L("Presence.Leave", rec.Identity.Name));
+            NotifyPresence();
         }
 
         private void RespawnBot(BotRecord rec)
@@ -3890,6 +3896,7 @@ namespace Oxide.Plugins
                     ws.HoldUntil = Time.realtimeSinceStartup + 120f;
                 }
                 MarkDirty(rec.Identity.BotId);
+                NotifyPresence();
             }
             else
             {
@@ -4548,6 +4555,7 @@ namespace Oxide.Plugins
             UnlinkLive(victimBotId);
             if (killerIsWildlife) TrackWildlifeCamp(rec, entity.transform.position); // WC — may extend RespawnAt or clear the camper
             MarkDirty(victimBotId);
+            NotifyPresence();
             var cause = killerName == "the world" ? $" ({WorldDeathCause(info)})" : "";
             DLog($"[death] {rec.Identity.Name} was killed by {killerName}{cause} at {entity.transform.position} — death #{rec.State.Deaths}, respawn in {_config.RespawnDelayMinutes:0}m");
             Story("death", $"{rec.Identity.Name} was killed by {killerName}{cause} near {GridRef(entity.transform.position)} (death #{rec.State.Deaths})");
@@ -9669,6 +9677,7 @@ namespace Oxide.Plugins
             if (System.IO.File.Exists(ProbeSlmMarker)) timer.Once(30f, ProbeSlm); // Phase 7 gate P7-1/P7-2
             if (System.IO.File.Exists(ProbeSciCensusMarker)) timer.Once(30f, ProbeSciCensus); // Gen2 scientist migration census
             DLog($"FakeFriends {Version} up — roster {ActiveRosterCount()}/{_config.MaxBots} active ({_bots.Count} total incl. fallen), {_live.Count} live. Scheduler running (30s tick). ff.list to view.");
+            NotifyPresence(); // a HUD redraws its Online count from our resumed sessions
         }
 
         private void Unload()
@@ -9729,6 +9738,47 @@ namespace Oxide.Plugins
             KillGraveMarkers();  // markers are ours; graves themselves stay
             KillHamletMarkers(); // ditto — the hamlet record survives, the pin is runtime-only
             SaveDirty();
+            Interface.CallHook("OnFakeFriendsPresenceChanged", 0); // nobody is "online" once we're gone
+        }
+
+        #endregion
+
+        #region Presence API (for other plugins — a server HUD, a player list)
+
+        // Bots never join BasePlayer.activePlayerList: the engine fills that list only
+        // from a real network connection (PlayerInit), so any plugin that counts
+        // "online players" from it never sees a resident. Offline residents ARE
+        // ordinary sleepers (StartSleeping adds every player to sleepingPlayerList),
+        // so a Sleeping count already includes them. This is the other half: how
+        // many residents are up right now — Status Online with a live, non-dead body.
+        // Call as `FakeFriends.Call("GetOnlineBotCount")` (boxed int).
+        [HookMethod("GetOnlineBotCount")]
+        public int GetOnlineBotCount()
+        {
+            var n = 0;
+            foreach (var rec in _bots.Values)
+            {
+                if (rec.State.Status != "Online") continue;
+                var bp = GetLive(rec.Identity.BotId);
+                if (bp == null || bp.IsDestroyed || bp.IsDead()) continue;
+                n++;
+            }
+            return n;
+        }
+
+        private int _lastPresenceCount = -1;
+
+        // Fires OnFakeFriendsPresenceChanged(int onlineCount) to every plugin whenever
+        // the online count moves. Cheap (one roster pass, no allocation), so it is
+        // called liberally: session start/end, death, respawn, and the 30 s scheduler
+        // tick as a catch-all. Log-on/off already fire OnPlayerSleepEnded/OnPlayerSleep
+        // through the engine; this covers the awake spawns and deaths those miss.
+        private void NotifyPresence()
+        {
+            var n = GetOnlineBotCount();
+            if (n == _lastPresenceCount) return;
+            _lastPresenceCount = n;
+            Interface.CallHook("OnFakeFriendsPresenceChanged", n);
         }
 
         #endregion

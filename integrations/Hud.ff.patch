@@ -1,0 +1,54 @@
+--- a/Hud.cs
++++ b/Hud.cs
+@@ -53,6 +53,13 @@
+     [PluginReference("ImageLibrary")]
+     private Plugin _imageLibrary;
+ 
++    // FakeFriends (LowPopLabs) integration — see integrations/Hud.ff.patch in the
++    // FakeFriends repo. Bot residents never join BasePlayer.activePlayerList, so the
++    // Online count asks the plugin how many are up; offline residents are ordinary
++    // sleepers and already count in the Sleep number.
++    [PluginReference("FakeFriends")]
++    private Plugin _fakeFriends;
++
+ #region Settings
+ 
+     private class Configuration
+@@ -970,6 +977,14 @@
+         _hudHandler.HandlePlayersCountChanged();
+     }
+ 
++    // FakeFriends integration: a resident came online, logged off, died or respawned.
++    [UsedImplicitly]
++    [HookMethod(nameof(OnFakeFriendsPresenceChanged))]
++    private void OnFakeFriendsPresenceChanged(int onlineCount)
++    {
++        _hudHandler?.HandlePlayersCountChanged();
++    }
++
+ #region ComputerStation
+ 
+     [UsedImplicitly]
+@@ -3412,8 +3427,12 @@
+ 
+         private int CountActivePlayers()
+         {
++            // FakeFriends integration: residents that are "online" right now (0 when the
++            // plugin is not loaded).
++            int botCount = _plugin._fakeFriends?.Call("GetOnlineBotCount") as int? ?? 0;
++
+             if (!_plugin._config.MainSetup.ActivePlayersAppearance.IsAdminsCount)
+-                return BasePlayer.activePlayerList.Count;
++                return BasePlayer.activePlayerList.Count + botCount;
+ 
+             int activeCount = 0;
+ 
+@@ -3423,7 +3442,7 @@
+                     ++activeCount;
+             }
+ 
+-            return activeCount;
++            return activeCount + botCount;
+         }
+ 
+         private bool IsEventsHiddenFor(BasePlayer player)

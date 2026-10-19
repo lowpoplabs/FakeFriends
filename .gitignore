@@ -10,3 +10,6 @@ scratch/
 /*.png
 
 releases/
+
+# third-party plugins kept locally for integration work (paid, not ours to redistribute)
+other plugins/
